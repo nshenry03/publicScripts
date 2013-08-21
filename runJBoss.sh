@@ -35,7 +35,7 @@ P2JBOSS='/opt/jboss'
 #===============================================================================
 function usage ()
 {
-	cat <<- EOT
+cat <<- EOT
 
   Arguments:
     -i|--insecure   Listen on all interfaces rather than just localhost
@@ -47,7 +47,7 @@ function usage ()
   Example:
     ${0} --insecure --debug
 
-	EOT
+EOT
 }    # ----------  end of function usage  ----------
 
 #===============================================================================
@@ -62,23 +62,20 @@ function usage ()
 #  Handle command line arguments
 #-----------------------------------------------------------------------
 # :WARNING: The quotes around `$@' are essential! 
-TEMP=`getopt -q -o idh --long insecure,debug,help\
-  -n "${0}" -- "${@}"`
+OPTS=$(getopt --quiet --options idh --long insecure,debug,help --name "${0}" -- "${@}")
 
-# :WARNING: The quotes around `$TEMP' are essential!
-eval set -- "$TEMP"
+# :WARNING: The quotes around `$OPTS' are essential!
+eval set -- "$OPTS"
 
-n=0
 while true ; do
-  case "$1" in
-    -i|--insecure)   JBOPTIONS="${JBOPTIONS:+ }-b 0.0.0.0";                                                                      shift 2 ;;
-    -d|--debug)      JBOPTIONS="${JBOPTIONS:+ }-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n"; shift 2 ;;
-    -h|--help)       usage;                                                                                                       exit 0 ;;
-    \? )             echo -e "\n  Option does not exist : $OPTARG\n"; usage;                                                      exit 1 ;;
-    --)              shift;                                                                                                         break;;
+  case "${1}" in
+    --insecure|-i)   JBOPTIONS="${JBOPTIONS:-} -b 0.0.0.0";                                                                      shift 1 ;;
+       --debug|-d)   JBOPTIONS="${JBOPTIONS:-} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n"; shift 1 ;;
+        --help|-h)   usage;                                                                                                       exit 0 ;;
+              \? )   echo -e "\n  Option does not exist : $OPTARG\n"; usage;                                                      exit 1 ;;
+               --)   shift;                                                                                                        break ;;
   esac
 done
-
 
 #-------------------------------------------------------------------------------
 #  Cleanup before starting JBoss
